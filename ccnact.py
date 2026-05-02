@@ -8,7 +8,7 @@ paper draft. Dependencies are: NumPy, SciPy, pytest, Numba and Pint (via PySDM,
 which is only used for handling tests, entire "physics" and all constants are here).
 """
 
-# pylint: disable=non-ascii-name,multiple-imports,fixme,no-member
+# pylint: disable=non-ascii-name,multiple-imports,fixme,no-member,import-error
 # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
 
 import math
