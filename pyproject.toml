@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "SciPy",
+    "SciPy>=1.17.1",
     "Pint"
 ]
 
