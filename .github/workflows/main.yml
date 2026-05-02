@@ -18,7 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
-        python-version: 3.13
+        with:
+          python-version: 3.13
       - run: |
           pip install pre-commit
           pre-commit clean
@@ -38,7 +39,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
-        python-version: 3.13
+        with:
+          python-version: 3.13
       - run: pip install -e .
       - run: python -c "from ccnact import parcel"
       - run: pip install -e .[dev]
