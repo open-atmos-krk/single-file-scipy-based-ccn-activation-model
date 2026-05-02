@@ -1,0 +1,40 @@
+name: main
+
+defaults:
+  run:
+    shell: bash -ex {0}
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore: ['**.md']
+  pull_request:
+    branches: [ main ]
+    paths-ignore: ['**.md']
+
+jobs:
+  precommit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+      - run: |
+          pip install pre-commit
+          pre-commit clean
+          pre-commit autoupdate
+          pre-commit run --all-files --show-diff-on-failure
+
+  pytest:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+      - run: pip install -e .
+      - run: python -c "from ccnact import parcel"
+      - run: pytest parcel.py
