@@ -8,22 +8,17 @@ paper draft. Dependencies are: NumPy, SciPy, pytest, Numba and Pint (via PySDM,
 which is only used for handling tests, entire "physics" and all constants are here).
 """
 
-# pylint: disable=non-ascii-name,multiple-imports,fixme,no-member,import-error
+# pylint: disable=non-ascii-name,multiple-imports,fixme,no-member,import-error,ungrouped-imports
 # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
 
 import math
 from collections import namedtuple
-from functools import partial
 from typing import Iterable
 
-import numba
 import numpy as np
 import scipy
 from PySDM import physics
-from PySDM.physics.dimensional_analysis import DimensionalAnalysis
 from scipy.optimize import elementwise as scipy_optimize_elementwise
-
-JIT = partial(numba.jit, error_model="numpy", fastmath=True, boundscheck=False)
 
 
 def parcel(
@@ -74,7 +69,7 @@ def parcel(
         dt=dt,
         p=p,
     )
-    y0 = initial_condition(eqj, c, s, ix)
+    y0 = initial_condition(eqp, c, s, ix)
     sol = solve(c, s, ix, y0, stop_at_s_max)
 
     p_d = sol.y[ix.p_d] * si.Pa
@@ -270,7 +265,6 @@ eqs = {
 }
 Eqs = namedtuple("Eqs", eqs.keys())
 eqp = Eqs(**eqs)
-eqj = Eqs(**{k: JIT(v) for k, v in eqs.items()})
 del eqs
 
 
@@ -295,9 +289,7 @@ def stop_cond(_, y, __, e, c, s, ix):
     return q1 * s.w + q2 * dq_v__dt
 
 
-jit_ode_rhs = JIT(ode_rhs)
-jit_stop_cond = JIT(stop_cond)
-jit_stop_cond.terminal = True
+stop_cond.terminal = True
 
 
 def initial_condition(e: Eqs, c, s, ix):
@@ -325,15 +317,16 @@ def initial_condition(e: Eqs, c, s, ix):
 
 def solve(c, s, ix, y0, stop_at_s_max=False):
     """performs time integration using SciPy's interface to LSODA"""
-    sol = scipy.integrate.solve_ivp(
-        jit_ode_rhs,
-        (0, s.t_max),
-        y0,
-        args=(np.empty(ix.size), eqj, c, s, ix),
-        method="LSODA",
-        rtol=1e-4,
-        events=jit_stop_cond if stop_at_s_max else None,
-    )
+    with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+        sol = scipy.integrate.solve_ivp(
+            ode_rhs,
+            (0, s.t_max),
+            y0,
+            args=(np.empty(ix.size), eqp, c, s, ix),
+            method="LSODA",
+            rtol=1e-4,
+            events=stop_cond if stop_at_s_max else None,
+        )
     assert sol.success, sol.message
     return sol
 
@@ -345,6 +338,7 @@ if "pytest" in str(__loader__):
     from contextlib import nullcontext
 
     import pytest
+    from PySDM.physics.dimensional_analysis import DimensionalAnalysis
 
     @pytest.mark.parametrize(
         "ctx",
@@ -404,7 +398,7 @@ if "pytest" in str(__loader__):
         """repropoduces simulation from the BAMS paper draft asserting on the final values"""
         c, si = constants()
         _, ix, s = cfg_ccn(c, si)
-        y0 = initial_condition(eqj, c, s, ix)
+        y0 = initial_condition(eqp, c, s, ix)
         sol = solve(c, s, ix, y0)
 
         with DimensionalAnalysis():
