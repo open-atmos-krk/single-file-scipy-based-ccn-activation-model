@@ -44,4 +44,4 @@ jobs:
       - run: pip install -e .
       - run: python -c "from ccnact import parcel"
       - run: pip install -e .[dev]
-      - run: pytest parcel.py
+      - run: pytest ccnact.py
