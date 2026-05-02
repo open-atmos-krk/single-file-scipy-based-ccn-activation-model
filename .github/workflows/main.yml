@@ -25,6 +25,8 @@ jobs:
           pre-commit run --all-files --show-diff-on-failure
 
   pytest:
+    needs: precommit
+
     runs-on: ${{ matrix.os }}
 
     strategy:

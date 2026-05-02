@@ -13,13 +13,11 @@ which is only used for handling tests, entire "physics" and all constants are he
 
 import math
 from collections import namedtuple
-from contextlib import nullcontext
 from functools import partial
 from typing import Iterable
 
 import numba
 import numpy as np
-import pytest
 import scipy
 from PySDM import physics
 from PySDM.physics.dimensional_analysis import DimensionalAnalysis
@@ -342,122 +340,122 @@ def solve(c, s, ix, y0, stop_at_s_max=False):
 
 # TESTS ########################################################################
 
+if "pytest" in str(__loader__):
 
-@pytest.mark.parametrize(
-    "ctx",
-    (
-        pytest.param(nullcontext(), id="fake units"),
-        pytest.param(DimensionalAnalysis(), id="real units"),
-    ),
-)
-def test_constants(ctx):
-    """calls the constants() function with and without the unit handling"""
-    with ctx:
-        _ = constants()
+    from contextlib import nullcontext
 
+    import pytest
 
-def test_ode_rhs():
-    """checks unit correctness in the ODE definition"""
-    with DimensionalAnalysis():
-        # Arrange
-        c, si = constants()
-        _, ix, s = cfg_ccn(c, si)
-        y = [np.nan] * ix.size
-        y[ix.T] *= si.K
-        y[ix.p_d] *= si.Pa
-
-        # Act
-        rhs = ode_rhs(None, y, [np.nan] * ix.size, eqp, c, s, ix)
-
-        # Assert
-        assert rhs[ix.T].check("[temperature] / [time]")
-        assert rhs[ix.p_d].check("[pressure] / [time]")
-        assert all(x.check("1 / [time]") for x in rhs[ix.x])
-
-
-def test_stop_cond():
-    """checks unit correctness in the stopping condition definition"""
-    with DimensionalAnalysis():
-        # Arrange
-        c, si = constants()
-        _, ix, s = cfg_ccn(c, si)
-        y = [np.nan] * ix.size
-        y[ix.T] *= si.K
-        y[ix.p_d] *= si.Pa
-
-        # Act
-        drh_dt = stop_cond(None, y, [np.nan] * ix.size, eqp, c, s, ix)
-
-        # Assert
-        assert drh_dt.check("1 / [time]")
-
-
-def test_dimensional_analysis():
-    """checks if the dimensional analysis logic throws an error on bogus addition"""
-    with pytest.raises(Exception) as excinfo:
-        with DimensionalAnalysis():
-            c, _ = constants()
-            __ = c.T_0C + c.g
-    assert "Cannot convert from 'kelvin' ([temperature]) to" in str(excinfo.value)
-
-
-def test_case_from_the_paper():
-    """repropoduces simulation from the BAMS paper draft asserting on the final values"""
-    c, si = constants()
-    _, ix, s = cfg_ccn(c, si)
-    y0 = initial_condition(eqj, c, s, ix)
-    sol = solve(c, s, ix, y0)
-
-    with DimensionalAnalysis():
-        c, si = constants()
-        _, ix, s = cfg_ccn(c, si)
-
-        p_d = sol.y[ix.p_d] * si.Pa
-        temp = sol.y[ix.T] * si.K
-        r_w = eqp.r_w(c, x=sol.y[ix.x])
-        rh = eqp.RH(
-            q_v=s.q_t - eqp.q_l(c, s, r_w=r_w),
-            ρ_vs=eqp.ρ_v(c, p_v=eqp.p_vs(c, T=temp), T=temp),
-            ρ_d=eqp.ρ_d(c, p_d=p_d, T=temp),
-        )
-        r_c = eqp.r_c(c, s, r_d=s.r_d[:, None], T=temp[None, :])
-
-        n_a = (r_w[:, -1] > r_c[:, -1]) @ s.ξ / s.m_d * c.ρ_stp
-        err = np.amax(s.ξ) / s.m_d * c.ρ_stp
-
-    # assert
-    assert f"{min(rh):.2g~}" == "0.91"
-    assert f"{max(rh - 1):.2g~}" == "0.0016"
-    assert f"{n_a.to(u := si.cm**-3):.4g~}" == "1091 / cm ** 3"
-    assert f"{err.to(u):.3g~}" == "182 / cm ** 3"
-
-
-@pytest.mark.parametrize("stop_at_s_max", (True, False))
-def test_parcel(stop_at_s_max):
-    """runs the parcel() interface with arbitrary parameters asserting on the
-    returned values"""
-    n1_act, s_max = parcel(
-        w=1,
-        kappa=(0.8, 0.8),
-        meanr=(3e-8, 3e-8),
-        n_tot=(0.5e9, 0.5e9),
-        gstdv=(1.5, 1.5),
-        n_bins=100,
-        RH=0.99,
-        T=300,
-        p=1e5,
-        MAC=1,
-        sigma=0.072,
-        dt=2,
-        nt=100,
-        R_d=287.0558,
-        R_v=461.5,
-        l_v=2500712,
-        g=9.80665,
-        c_pd=1004.6,
-        rho_l=1,
-        D_v=2.26e-05,
-        stop_at_s_max=stop_at_s_max,
+    @pytest.mark.parametrize(
+        "ctx",
+        (
+            pytest.param(nullcontext(), id="fake units"),
+            pytest.param(DimensionalAnalysis(), id="real units"),
+        ),
     )
-    np.testing.assert_approx_equal(s_max, 1.002026)
-    np.testing.assert_approx_equal(n1_act, 220e6)
+    def test_constants(ctx):
+        """calls the constants() function with and without the unit handling"""
+        with ctx:
+            _ = constants()
+
+    def test_ode_rhs():
+        """checks unit correctness in the ODE definition"""
+        with DimensionalAnalysis():
+            # Arrange
+            c, si = constants()
+            _, ix, s = cfg_ccn(c, si)
+            y = [np.nan] * ix.size
+            y[ix.T] *= si.K
+            y[ix.p_d] *= si.Pa
+
+            # Act
+            rhs = ode_rhs(None, y, [np.nan] * ix.size, eqp, c, s, ix)
+
+            # Assert
+            assert rhs[ix.T].check("[temperature] / [time]")
+            assert rhs[ix.p_d].check("[pressure] / [time]")
+            assert all(x.check("1 / [time]") for x in rhs[ix.x])
+
+    def test_stop_cond():
+        """checks unit correctness in the stopping condition definition"""
+        with DimensionalAnalysis():
+            # Arrange
+            c, si = constants()
+            _, ix, s = cfg_ccn(c, si)
+            y = [np.nan] * ix.size
+            y[ix.T] *= si.K
+            y[ix.p_d] *= si.Pa
+
+            # Act
+            drh_dt = stop_cond(None, y, [np.nan] * ix.size, eqp, c, s, ix)
+
+            # Assert
+            assert drh_dt.check("1 / [time]")
+
+    def test_dimensional_analysis():
+        """checks if the dimensional analysis logic throws an error on bogus addition"""
+        with pytest.raises(Exception) as excinfo:
+            with DimensionalAnalysis():
+                c, _ = constants()
+                __ = c.T_0C + c.g
+        assert "Cannot convert from 'kelvin' ([temperature]) to" in str(excinfo.value)
+
+    def test_case_from_the_paper():
+        """repropoduces simulation from the BAMS paper draft asserting on the final values"""
+        c, si = constants()
+        _, ix, s = cfg_ccn(c, si)
+        y0 = initial_condition(eqj, c, s, ix)
+        sol = solve(c, s, ix, y0)
+
+        with DimensionalAnalysis():
+            c, si = constants()
+            _, ix, s = cfg_ccn(c, si)
+
+            p_d = sol.y[ix.p_d] * si.Pa
+            temp = sol.y[ix.T] * si.K
+            r_w = eqp.r_w(c, x=sol.y[ix.x])
+            rh = eqp.RH(
+                q_v=s.q_t - eqp.q_l(c, s, r_w=r_w),
+                ρ_vs=eqp.ρ_v(c, p_v=eqp.p_vs(c, T=temp), T=temp),
+                ρ_d=eqp.ρ_d(c, p_d=p_d, T=temp),
+            )
+            r_c = eqp.r_c(c, s, r_d=s.r_d[:, None], T=temp[None, :])
+
+            n_a = (r_w[:, -1] > r_c[:, -1]) @ s.ξ / s.m_d * c.ρ_stp
+            err = np.amax(s.ξ) / s.m_d * c.ρ_stp
+
+        # assert
+        assert f"{min(rh):.2g~}" == "0.91"
+        assert f"{max(rh - 1):.2g~}" == "0.0016"
+        assert f"{n_a.to(u := si.cm**-3):.4g~}" == "1091 / cm ** 3"
+        assert f"{err.to(u):.3g~}" == "182 / cm ** 3"
+
+    @pytest.mark.parametrize("stop_at_s_max", (True, False))
+    def test_parcel(stop_at_s_max):
+        """runs the parcel() interface with arbitrary parameters asserting on the
+        returned values"""
+        n1_act, s_max = parcel(
+            w=1,
+            kappa=(0.8, 0.8),
+            meanr=(3e-8, 3e-8),
+            n_tot=(0.5e9, 0.5e9),
+            gstdv=(1.5, 1.5),
+            n_bins=100,
+            RH=0.99,
+            T=300,
+            p=1e5,
+            MAC=1,
+            sigma=0.072,
+            dt=2,
+            nt=100,
+            R_d=287.0558,
+            R_v=461.5,
+            l_v=2500712,
+            g=9.80665,
+            c_pd=1004.6,
+            rho_l=1,
+            D_v=2.26e-05,
+            stop_at_s_max=stop_at_s_max,
+        )
+        np.testing.assert_approx_equal(s_max, 1.002026)
+        np.testing.assert_approx_equal(n1_act, 220e6)
