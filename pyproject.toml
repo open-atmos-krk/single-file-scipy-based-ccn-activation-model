@@ -1,0 +1,45 @@
+[build-system]
+requires = [
+    "setuptools==82.0.1",
+    "wheel",
+    "setuptools_scm[toml]>=9.2.2"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ccnact"
+dynamic = ["version"]
+description = "Single-file SciPy-based CCN activation model "
+authors = [
+    { name = "Sylwester Arabas", email = "slayoo@agh.edu.pl" }
+]
+license = { text = "GPL-3.0-or-later" }
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+dependencies = [
+    "PySDM"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "PySDM"
+]
+
+[tool.setuptools]
+py-modules = ["ccnact"]
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+version_scheme = "post-release"
