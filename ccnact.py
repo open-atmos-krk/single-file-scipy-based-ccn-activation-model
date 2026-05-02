@@ -4,11 +4,11 @@ aerosol/cloud microphysics representation capturing condensation, CCN [de]activa
 ripening and evaporation.
 
 Code based on the "Exploring Cloud Microphysics Modeling Concepts the Pythonic Way"
-paper draft. Dependencies are: NumPy, SciPy, pytest, Numba and Pint (via PySDM,
-which is only used for handling tests, entire "physics" and all constants are here).
+paper draft. Dependencies are: NumPy, SciPy, pytest and Pint (which is de-facto only
+used within tests, by default all computations are done on pure floats).
 """
 
-# pylint: disable=non-ascii-name,multiple-imports,fixme,no-member,import-error,ungrouped-imports
+# pylint: disable=non-ascii-name,fixme,no-member,import-error,global-statement
 # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
 
 import math
@@ -16,8 +16,8 @@ from collections import namedtuple
 from typing import Iterable
 
 import numpy as np
+import pint
 import scipy
-from PySDM import physics
 from scipy.optimize import elementwise as scipy_optimize_elementwise
 
 
@@ -183,7 +183,7 @@ def constants(*, R_d=None, R_v=None, l_v=None, g=None, c_pd=None, rho_l=None, D_
     optionally replaced with values from the arguments; if run under the
     `DimensionalAnalysis` context manager, all values are instantiated as Pint quantities
     """
-    si = physics.si
+    si = SI
 
     zero_c = scipy.constants.zero_Celsius * si.K
     p_stp = 101.325 * si.kPa  # ICAO
@@ -331,6 +331,64 @@ def solve(c, s, ix, y0, stop_at_s_max=False):
     return sol
 
 
+def _fake(si_unit):
+    return (1.0 * si_unit).to_base_units().magnitude
+
+
+class FakeUnitRegistry:  # pylint: disable=too-few-public-methods
+    """a mock of pint.UnitRegistry() with a subset of the API, but working on pure floats"""
+
+    def __init__(self, si):
+        self.dimensionless = 1.0
+        for prefix in ("nano", "micro", "milli", "centi", "deci", "", "hecto", "kilo"):
+            for unit in (
+                "bar",
+                "metre",
+                "meter",
+                "gram",
+                "hertz",
+                "mole",
+                "joule",
+                "kelvin",
+                "second",
+                "minute",
+                "pascal",
+                "litre",
+                "liter",
+                "hour",
+                "newton",
+                "watt",
+            ):
+                self.__setattr__(prefix + unit, _fake(si.__getattr__(prefix + unit)))
+                self.__setattr__(
+                    prefix + unit + "s", _fake(si.__getattr__(prefix + unit + "s"))
+                )
+
+        for prefix in ("n", "u", "m", "c", "d", "", "h", "k"):
+            for unit in (
+                "b",
+                "m",
+                "g",
+                "Hz",
+                "mol",
+                "J",
+                "K",
+                "s",
+                "min",
+                "day",
+                "Pa",
+                "l",
+                "h",
+                "bar",  # note: "b" is barn !!!
+                "N",
+                "W",
+            ):
+                self.__setattr__(prefix + unit, _fake(si.__getattr__(prefix + unit)))
+
+
+PINT_SI = pint.UnitRegistry()
+SI = FakeUnitRegistry(PINT_SI)
+
 # TESTS ########################################################################
 
 if "pytest" in str(__loader__):
@@ -338,7 +396,17 @@ if "pytest" in str(__loader__):
     from contextlib import nullcontext
 
     import pytest
-    from PySDM.physics.dimensional_analysis import DimensionalAnalysis
+
+    class DimensionalAnalysis:
+        """context manager enabling true Pint unit checks"""
+
+        def __enter__(*_):  # pylint: disable=no-method-argument,no-self-argument
+            global SI
+            SI = PINT_SI
+
+        def __exit__(*_):  # pylint: disable=no-method-argument,no-self-argument
+            global SI
+            SI = FakeUnitRegistry(PINT_SI)
 
     @pytest.mark.parametrize(
         "ctx",

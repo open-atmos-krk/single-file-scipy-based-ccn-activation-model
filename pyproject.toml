@@ -28,13 +28,13 @@ classifiers = [
 ]
 
 dependencies = [
-    "PySDM"
+    "SciPy",
+    "Pint"
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "PySDM"
 ]
 
 [tool.setuptools]
