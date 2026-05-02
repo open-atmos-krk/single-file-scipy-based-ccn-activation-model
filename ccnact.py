@@ -35,7 +35,7 @@ def parcel(
     T: float,
     p: float,
     nt: int,
-    dt: float,
+    dt: float = None,
     R_d: float = None,
     R_v: float = None,
     l_v: float = None,
@@ -66,7 +66,7 @@ def parcel(
         n_tot=n_tot,
         gstdv=gstdv,
         nt=nt,
-        dt=dt,
+        dt=dt or 1 * si.s,
         p=p,
     )
     y0 = initial_condition(eqp, c, s, ix)
@@ -237,38 +237,44 @@ def __ode_helper(y, e, c, s, ix):
     return ρ_d, ρ_vs, r_w, dr_w__dt, dq_v__dt
 
 
-eqs = {
-    "RH_eq": lambda c, s, r_w, r_d, T: (r_w**3 - r_d**3)
-    / (r_w**3 - r_d**3 * (1 - s.κ))
-    * np.exp(2 * s.σ_w / (c.R_v * T * c.ρ_w * r_w)),
-    "dp_d__dt": lambda c, p, ρ_d: -p.w * ρ_d * c.g,
-    "dT__dt": lambda c, dp_d__dt, dq_v__dt, ρ_d: (dp_d__dt / ρ_d - dq_v__dt * c.l_v)
-    / c.c_pd,
-    "dr_w__dt": lambda c, r_w, ρ_v, ρ_o: c.D_v / c.ρ_w * (ρ_v - ρ_o) / r_w,
-    "x": lambda c, r_w: np.log(r_w / c.r_0),
-    "r_w": lambda c, x: c.r_0 * np.exp(x),
-    "dr_w__dx": lambda r_w: r_w,
-    "ρ_d": lambda c, p_d, T: p_d / c.R_d / T,
-    "ρ_v": lambda c, p_v, T: p_v / c.R_v / T,
-    "p_vs": lambda c, T: c.B80_G0
-    * np.exp((c.B80_G1 * (T - c.T_0C)) / ((T - c.T_0C) + c.B80_G2)),
-    "RH": lambda q_v, ρ_vs, ρ_d: ρ_d * q_v / ρ_vs,
-    "q_l": lambda c, s, r_w: 4 / 3 * np.pi * (c.ρ_w * s.ξ @ r_w**3) / s.m_d,
-    "dq_v__dt": lambda c, s, r_w, dr_w__dt: -4
-    * np.pi
-    * (s.ξ * r_w**2 @ dr_w__dt)
-    / s.m_d
-    * c.ρ_w,
-    "r_c": lambda c, s, r_d, T: (3 * s.κ * r_d**3 / (2 * s.σ_w / (c.R_v * T * c.ρ_w)))
-    ** 0.5,
-    "ode_helper": __ode_helper,
-}
-Eqs = namedtuple("Eqs", eqs.keys())
-eqp = Eqs(**eqs)
-del eqs
+eqp = namedtuple(
+    "Eqs",
+    (
+        eqp := {
+            "RH_eq": lambda c, s, r_w, r_d, T: (r_w**3 - r_d**3)
+            / (r_w**3 - r_d**3 * (1 - s.κ))
+            * np.exp(2 * s.σ_w / (c.R_v * T * c.ρ_w * r_w)),
+            "dp_d__dt": lambda c, p, ρ_d: -p.w * ρ_d * c.g,
+            "dT__dt": lambda c, dp_d__dt, dq_v__dt, ρ_d: (
+                dp_d__dt / ρ_d - dq_v__dt * c.l_v
+            )
+            / c.c_pd,
+            "dr_w__dt": lambda c, r_w, ρ_v, ρ_o: c.D_v / c.ρ_w * (ρ_v - ρ_o) / r_w,
+            "x": lambda c, r_w: np.log(r_w / c.r_0),
+            "r_w": lambda c, x: c.r_0 * np.exp(x),
+            "dr_w__dx": lambda r_w: r_w,
+            "ρ_d": lambda c, p_d, T: p_d / c.R_d / T,
+            "ρ_v": lambda c, p_v, T: p_v / c.R_v / T,
+            "p_vs": lambda c, T: c.B80_G0
+            * np.exp((c.B80_G1 * (T - c.T_0C)) / ((T - c.T_0C) + c.B80_G2)),
+            "RH": lambda q_v, ρ_vs, ρ_d: ρ_d * q_v / ρ_vs,
+            "q_l": lambda c, s, r_w: 4 / 3 * np.pi * (c.ρ_w * s.ξ @ r_w**3) / s.m_d,
+            "dq_v__dt": lambda c, s, r_w, dr_w__dt: -4
+            * np.pi
+            * (s.ξ * r_w**2 @ dr_w__dt)
+            / s.m_d
+            * c.ρ_w,
+            "r_c": lambda c, s, r_d, T: (
+                3 * s.κ * r_d**3 / (2 * s.σ_w / (c.R_v * T * c.ρ_w))
+            )
+            ** 0.5,
+            "ode_helper": __ode_helper,
+        }
+    ).keys(),
+)(**eqp)
 
 
-def ode_rhs(_, y, dy__dt, e: Eqs, c, s, ix):
+def ode_rhs(_, y, dy__dt, e, c, s, ix):
     """ODE system right-hand-side following eq. (13) in Arabas & Shima 2017
     (https://doi.org/10.5194/npg-24-535-2017)"""
     ρ_d, _, r_w, dr_w__dt, dq_v__dt = e.ode_helper(y, e, c, s, ix)
@@ -292,7 +298,7 @@ def stop_cond(_, y, __, e, c, s, ix):
 stop_cond.terminal = True
 
 
-def initial_condition(e: Eqs, c, s, ix):
+def initial_condition(e, c, s, ix):
     """returns a state vector with wet radii in equilibrium with the dry radii"""
     cmn = {"c": c, "T": s.T_0}
     rh = e.RH(
