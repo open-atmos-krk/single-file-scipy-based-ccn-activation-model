@@ -348,11 +348,9 @@ class FakeUnitRegistry:  # pylint: disable=too-few-public-methods
         self.dimensionless = 1.0
         for prefix in ("nano", "micro", "milli", "centi", "deci", "", "hecto", "kilo"):
             for unit in (
-                "bar",
                 "metre",
                 "meter",
                 "gram",
-                "hertz",
                 "mole",
                 "joule",
                 "kelvin",
@@ -363,7 +361,6 @@ class FakeUnitRegistry:  # pylint: disable=too-few-public-methods
                 "liter",
                 "hour",
                 "newton",
-                "watt",
             ):
                 self.__setattr__(prefix + unit, _fake(si.__getattr__(prefix + unit)))
                 self.__setattr__(
@@ -372,10 +369,8 @@ class FakeUnitRegistry:  # pylint: disable=too-few-public-methods
 
         for prefix in ("n", "u", "m", "c", "d", "", "h", "k"):
             for unit in (
-                "b",
                 "m",
                 "g",
-                "Hz",
                 "mol",
                 "J",
                 "K",
@@ -385,9 +380,8 @@ class FakeUnitRegistry:  # pylint: disable=too-few-public-methods
                 "Pa",
                 "l",
                 "h",
-                "bar",  # note: "b" is barn !!!
+                "bar",
                 "N",
-                "W",
             ):
                 self.__setattr__(prefix + unit, _fake(si.__getattr__(prefix + unit)))
 
