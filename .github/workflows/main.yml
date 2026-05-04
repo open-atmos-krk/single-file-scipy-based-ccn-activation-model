@@ -62,7 +62,7 @@ jobs:
           python-version: "3.13"
       - run: pip install twine build
       - run: python -m build 2>&1 | tee build.log
-      - run: exit `fgrep -i warning build.log | wc -l`
+      # - run: exit `fgrep -i warning build.log | wc -l` TODO https://github.com/pypa/setuptools-scm/issues/1348
       - run: twine check --strict ./dist/*
       - name: check if version string does not contain PyPI-incompatible + char 
         run: |
