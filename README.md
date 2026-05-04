@@ -11,7 +11,7 @@
   - concentration of activated droplets (at STP) & 
   - maximal supersaturation
 - 📈 mulit-modal lognormal spectrum specification (with concentration interpretted as at STP)
-- ⚖️  implemeted using [Pint](https://pint.readthedocs.io/) dimensional analysis (physical units consistency checks) enabled for unit tests only
+- ⚖️  implemeted using [Pint](https://pint.readthedocs.io/) dimensional analysis (physical units consistency checks) enabled for tests only
 - 🔗 KISS desing: SciPy, NumPy and Pint are the only dependencies, model+tests wrapped into a single (and short) .py file
 - 🚀 subsecond execution times for common parameter settings
 
