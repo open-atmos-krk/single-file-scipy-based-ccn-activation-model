@@ -16,6 +16,7 @@ on:
 
 jobs:
   precommit:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -31,6 +32,7 @@ jobs:
           pre-commit run --all-files --show-diff-on-failure
 
   pytest:
+    if: github.event_name == 'pull_request'
     needs: precommit
 
     runs-on: ${{ matrix.os }}
@@ -53,7 +55,6 @@ jobs:
       - run: pytest ccnact.py
 
   package:
-    needs: pytest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

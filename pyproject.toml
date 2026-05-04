@@ -9,14 +9,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ccnact"
 dynamic = ["version"]
-description = "Single-file SciPy-based CCN activation model "
+description = "KISS SciPy-based CCN activation model "
 authors = [
     { name = "Sylwester Arabas", email = "slayoo@agh.edu.pl" }
 ]
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Intended Audience :: Science/Research",
@@ -43,3 +43,7 @@ py-modules = ["ccnact"]
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
 version_scheme = "post-release"
+
+[project.urls]
+Tracker = "https://github.com/open-atmos-krk/ccnact/issues"
+Source = "https://github.com/open-atmos-krk/ccnact"
