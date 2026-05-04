@@ -13,12 +13,19 @@ used within tests, by default all computations are done on pure floats).
 
 import math
 from collections import namedtuple
+from importlib.metadata import PackageNotFoundError, version
 from typing import Iterable
 
 import numpy as np
 import pint
 import scipy
 from scipy.optimize import elementwise as scipy_optimize_elementwise
+
+try:
+    __version__ = version(__name__)
+except PackageNotFoundError:
+    # package is not installed
+    pass
 
 
 def parcel(
