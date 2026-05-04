@@ -1,4 +1,4 @@
-# ☁️  [KISS](https://en.wikipedia.org/wiki/KISS_principle) SciPy-based CCN activation model
+# ☁️  [KISS](https://en.wikipedia.org/wiki/KISS_principle) SciPy-based [CCN](https://en.wikipedia.org/wiki/Cloud_condensation_nuclei) activation model
 
 [![PyPI version](https://badge.fury.io/py/ccnact.svg)](https://pypi.org/project/ccnact)
 
@@ -7,7 +7,9 @@
 - 🧮 integration using [SciPy interface to LSODA ODE solver](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.LSODA.html)
 - 📝 ODE system based on [Arabas & Shima 2017](https://doi.org/10.5194/npg-24-535-2017) (extended to polydisperse aerosol size spectrum)
 - 🌪️ capable of resolving aerosol activation, deactivation, drop growth, evaporation and ripening
-- ⚙️ single-function interface allowing to modify all constants, and returning a tuple of: concentration of activated droplets (at STP) & maximal supersaturation
+- ⚙️ single-function interface allowing to modify all constants, and returning a tuple of:
+  - concentration of activated droplets (at STP) & 
+  - maximal supersaturation
 - 📈 mulit-modal lognormal spectrum specification (with concentration interpretted as at STP)
 - ⚖️  implemeted using [Pint](https://pint.readthedocs.io/) dimensional analysis (physical units consistency checks) enabled for unit tests only
 - 🔗 KISS desing: SciPy, NumPy and Pint are the only dependencies, model+tests wrapped into a single (and short) .py file
