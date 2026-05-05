@@ -12,7 +12,7 @@ moving-sectional/particle-resolved aerosol-cloud microphysics, featuring:
 - 🏁 [κ-Köhler](https://doi.org/10.5194/acp-7-1961-2007) wet radii equilibration of input dry-size spectrum with [SciPy's elementwise root finder](https://docs.scipy.org/doc/scipy/reference/optimize.elementwise.html)
 - 🌪️ capability of resolving aerosol activation, deactivation, drop growth, evaporation and ripening
 - 📈 mulit-modal lognormal (using [SciPy's stats routines](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html)) spectrum specification (concentration at STP)
-- 🔌 portable across platforms and architectures (CI tested on Linux, macOS & Windows, on Intel and ARM CPUs)
+- 🔌 portable across platforms and architectures (CI on Linux, macOS & Windows, on Intel & ARM CPUs)
 - ⚙️ single-function interface allowing to modify every single constant, and returning a tuple of:
   - concentration of activated droplets (at STP)
   - maximal supersaturation
