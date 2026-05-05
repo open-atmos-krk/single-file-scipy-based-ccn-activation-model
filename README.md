@@ -11,16 +11,17 @@ moving-sectional/particle-resolved aerosol-cloud microphysics, featuring:
 - 📝 ODE system based on [Arabas & Shima 2017](https://doi.org/10.5194/npg-24-535-2017) (extended to polydisperse aerosol size spectrum)
 - 🏁 [κ-Köhler](https://doi.org/10.5194/acp-7-1961-2007) wet radii equilibration of input dry-size spectrum with [SciPy's elementwise root finder](https://docs.scipy.org/doc/scipy/reference/optimize.elementwise.html)
 - 🌪️ capability of resolving aerosol activation, deactivation, drop growth, evaporation and ripening
+- 📈 mulit-modal lognormal (using [SciPy's stats routines](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html)) spectrum specification (concentration at STP)
+- 🔌 portable across platforms and architectures (CI tested on Linux, macOS & Windows, on Intel and ARM CPUs)
 - ⚙️ single-function interface allowing to modify every single constant, and returning a tuple of:
   - concentration of activated droplets (at STP)
   - maximal supersaturation
-- 📈 mulit-modal lognormal (using [SciPy's stats routines](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html)) spectrum specification (concentration at STP)
-- 🧩 effective interfacing options for Matlab, Julia, etc 
+- 🧩 effective interfacing options for [Matlab](https://www.mathworks.com/help/matlab/call-python-libraries.html), [IDL](https://www.nv5geospatialsoftware.com/docs/Python.html), [Julia](https://github.com/JuliaPy/PythonCall.jl), etc 
 - ⚖️ unit-aware implemetation using [Pint](https://pint.readthedocs.io/) (dimensional analysis enabled for tests only)
 - 🚀 subsecond execution times for common parameter settings
-- 🔗 KISS design: depends on SciPy, NumPy & Pint only; single ~500 LOC file (physics + setup + tests)
+- 🔗 [KISS design](https://en.wikipedia.org/wiki/KISS_principle): depends on [SciPy](https://scipy.org/), [NumPy](https://numpy.org/) & [Pint](https://pint.readthedocs.io/) only; single ~500 LOC file (physics + setup + tests)
 
-The last four points motivated the development of this package -
+The last five points were the key motivating factors for the development -
   the project originated from a search for a simple, lightweight (in dependencies) and fast 
   CCN activation air-parcel model with concise code, automated testing and no hardcoded constants.
 
