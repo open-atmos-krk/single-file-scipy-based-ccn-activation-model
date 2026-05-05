@@ -25,6 +25,13 @@ The last five points were the key motivating factors for the development -
   the project originated from a search for a simple, lightweight (in dependencies) and fast 
   CCN activation air-parcel model with concise code, automated testing and no hardcoded constants.
 
+## 💡 example notebooks
+
+- basics: 
+  [![View notebook](https://img.shields.io/static/v1?label=render%20on&logo=github&color=87ce3e&message=GitHub)](https://github.com/open-atmos-krk/ccnact/blob/main/examples/basics.ipynb) 
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/open-atmos-krk/ccnact/blob/main/examples/basics.ipynb) 
+  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/open-atmos-krk/ccnact.git/main?urlpath=lab/tree/examples/basics.ipynb)
+
 ## 💻 notes for users
 
 To install the package, try: `pip install ccnact`
