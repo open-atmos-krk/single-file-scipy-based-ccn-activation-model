@@ -9,9 +9,9 @@ moving-sectional/particle-resolved aerosol-cloud microphysics, featuring:
 
 - 🧮 integration using [SciPy's interface to LSODA](https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.LSODA.html) stiff ODE solver
 - 📝 ODE system based on [Arabas & Shima 2017](https://doi.org/10.5194/npg-24-535-2017) (extended to polydisperse aerosol size spectrum)
-- 🏁 wet radii equilibration for input dry-size distribution using [SciPy's elementwise scalar optimisation](https://docs.scipy.org/doc/scipy/reference/optimize.elementwise.html)
+- 🏁 [κ-Köhler](https://doi.org/10.5194/acp-7-1961-2007) wet radii equilibration of input dry-size spectrum with [SciPy's elementwise root finder](https://docs.scipy.org/doc/scipy/reference/optimize.elementwise.html)
 - 🌪️ capability of resolving aerosol activation, deactivation, drop growth, evaporation and ripening
-- ⚙️ single-function interface allowing to modify every single constants, and returning a tuple of:
+- ⚙️ single-function interface allowing to modify every single constant, and returning a tuple of:
   - concentration of activated droplets (at STP)
   - maximal supersaturation
 - 📈 mulit-modal lognormal (using [SciPy's stats routines](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html)) spectrum specification (concentration at STP)
