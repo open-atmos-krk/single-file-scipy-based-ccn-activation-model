@@ -71,7 +71,7 @@ jobs:
         run: |
           [ `ls ${{ matrix.packages-dir }}/dist | fgrep + | tee /dev/stderr | wc -l` -ne 0 ] && exit 1 || echo OK
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           path: dist
           name: dist
