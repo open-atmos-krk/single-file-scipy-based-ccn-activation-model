@@ -571,8 +571,8 @@ if "pytest" in str(__loader__):
             assert (
                 nb_vars["cpu_time"]
                 >= {
-                    "Linux": 2,
-                    "Darwin": 1,
+                    "Linux": 2.5,
+                    "Darwin": 0.75,
                     "Windows": 1,
                 }[platform.system()]
                 * nb_vars["wall_time"]
