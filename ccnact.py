@@ -400,9 +400,12 @@ SI = FakeUnitRegistry(PINT_SI)
 
 if "pytest" in str(__loader__):
 
+    import platform
     from contextlib import nullcontext
+    from pathlib import Path
 
     import pytest
+    from open_atmos_jupyter_utils import notebook_vars
 
     class DimensionalAnalysis:
         """context manager enabling true Pint unit checks"""
@@ -528,3 +531,49 @@ if "pytest" in str(__loader__):
         )
         np.testing.assert_approx_equal(s_max, 1.002026)
         np.testing.assert_approx_equal(n1_act, 220e6)
+
+    class TestExampleBasics:
+        """testing results of computation in the notebook (incl. time measurements)"""
+
+        # pylint:disable=missing-function-docstring
+
+        @staticmethod
+        @pytest.fixture(scope="session", name="nb_vars")
+        def variables_fixture():
+            return notebook_vars(
+                file=Path(__file__).parent / "examples" / "basics.ipynb", plot=False
+            )
+
+        @staticmethod
+        @pytest.mark.parametrize("var", ("s_max", "n_act"))
+        def test_monotonic_vars(nb_vars, var):
+            assert all(np.diff(nb_vars[var])) > 0
+
+        @staticmethod
+        @pytest.mark.parametrize(
+            "var, index, value",
+            (
+                ("s_max", 0, 1.00117),
+                ("n_act", 0, 80e6),
+                ("s_max", -1, 1.00421),
+                ("n_act", -1, 78.5e7),
+            ),
+        )
+        def test_check_values(nb_vars, var, index, value):
+            np.testing.assert_approx_equal(nb_vars[var][index], value, significant=5)
+
+        @staticmethod
+        def test_no_regression_in_walltime(nb_vars):
+            assert nb_vars["wall_time"] < 15 * SI.s
+
+        @staticmethod
+        def test_concurrent(nb_vars):
+            assert (
+                nb_vars["cpu_time"]
+                >= {
+                    "Linux": 2.5,
+                    "Darwin": 0.75,
+                    "Windows": 1,
+                }[platform.system()]
+                * nb_vars["wall_time"]
+            )

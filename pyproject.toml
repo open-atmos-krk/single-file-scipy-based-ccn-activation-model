@@ -35,6 +35,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "open-atmos-jupyter-utils"
 ]
 
 [tool.setuptools]
