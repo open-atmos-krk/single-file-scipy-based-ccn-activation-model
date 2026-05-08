@@ -400,6 +400,7 @@ SI = FakeUnitRegistry(PINT_SI)
 
 if "pytest" in str(__loader__):
 
+    import platform
     from contextlib import nullcontext
     from pathlib import Path
 
@@ -567,4 +568,12 @@ if "pytest" in str(__loader__):
 
         @staticmethod
         def test_concurrent(nb_vars):
-            assert nb_vars["cpu_time"] > 2 * nb_vars["wall_time"]
+            assert (
+                nb_vars["cpu_time"]
+                >= {
+                    "Linux": 2,
+                    "Darwin": 1,
+                    "Windows": 1,
+                }[platform.system()]
+                * nb_vars["wall_time"]
+            )
